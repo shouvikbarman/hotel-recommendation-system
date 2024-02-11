@@ -1,4 +1,4 @@
-import { cleanEnv, str, email, json, port } from 'envalid'
+import { cleanEnv, str, port } from 'envalid'
 
 const env = cleanEnv(process.env, {
     MONGO_URL: str(),
