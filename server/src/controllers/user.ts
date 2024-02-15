@@ -2,11 +2,11 @@ import { RequestHandler } from "express";
 import User from "../models/user";
 import createHttpError from "http-errors";
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 interface UserBody {
     username?: string
     password?: string
-    recommended?: string
 }
 
 interface UserParams {
@@ -14,7 +14,7 @@ interface UserParams {
 }
 export const getUsers: RequestHandler = async (req, res, next) => {
     try {
-        const users = await User.find().populate("recommended").exec();
+        const users = await User.find().exec();
         res.status(200).json(users)
     } catch (error) {
         next(error)
@@ -28,7 +28,7 @@ export const getUser: RequestHandler<UserParams, unknown, unknown, unknown> = as
             throw createHttpError(400, "Invalid user id");
 
         }
-        const user = await User.findById(userId).populate("recommended").exec();
+        const user = await User.findById(userId).exec();
         res.status(200).json(user)
     } catch (error) {
         next(error)
@@ -47,19 +47,60 @@ export const createUser: RequestHandler<unknown, unknown, UserBody, unknown> = a
     }
 }
 
-export const addUserRecommendation: RequestHandler<UserParams, unknown, UserBody, unknown> = async (req, res, next) => {
-    const userId = req.params.userId;
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
     try {
-        if (!req.body.recommended) {
-            throw createHttpError(400, "Recommendation is required");
+        const userId = req.session.userId;
+        if (!userId) {
+            throw createHttpError(401, "User is not authenticated");
         }
-        if (!mongoose.isValidObjectId(userId)) {
-            throw createHttpError(400, "Invalid user id");
-
-        }
-        const users = await User.findByIdAndUpdate(userId, { recommended: req.body.recommended }, { new: true }).exec();
-        res.status(201).json(users);
+        const user = await User.findById(userId).exec();
+        res.status(200).json(user);
     } catch (error) {
         next(error)
+    }
+}
+export const signInSignUp: RequestHandler<unknown, unknown, UserBody, unknown> = async (req, res, next) => {
+    const userName = req.body.username;
+    const rawPassword = req.body.password;
+
+    try {
+        if (!userName || !rawPassword) {
+            throw createHttpError(400, "username and password are required");
+        }
+        const existingUser = await User.findOne({ username: userName }).select("+password").exec();
+        if (existingUser) {
+            const matchedPassword = await bcrypt.compare(rawPassword, existingUser.password);
+            if (!matchedPassword) {
+                throw createHttpError(401, "Incorrect credentials");
+            }
+            req.session.userId = existingUser._id;
+            const user = {
+                _id: existingUser._id,
+                username: existingUser.username,
+                createdAt: existingUser.createdAt,
+                updatedAt: existingUser.updatedAt
+            }
+            res.status(201).json(user);
+        } else {
+            const hashedPassword = await bcrypt.hash(rawPassword!, 10);
+            const newUser = await User.create({ username: userName, password: hashedPassword });
+            req.session.userId = newUser._id;
+            res.status(201).json(newUser);
+        }
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const logout: RequestHandler = async (req, res, next) => {
+    try {
+        req.session.destroy(e => {
+            if (e) {
+                next(e);
+            }
+        });
+        res.sendStatus(200)
+    } catch (error) {
+        next(error);
     }
 }

@@ -22,10 +22,6 @@ const bookingSchema = new Schema({
         enum: ['DRAFT', 'COMPLETED'],
         default: 'DRAFT'
     },
-    number_of_guests: {
-        type: Number,
-        required: true
-    }
 }, { timestamps: true });
 
 type Booking = InferSchemaType<typeof bookingSchema>;

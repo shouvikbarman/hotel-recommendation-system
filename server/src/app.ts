@@ -5,14 +5,35 @@ import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
 import hotelRoutes from "./routes/hotel";
 import bookingRoutes from "./routes/booking";
+import recommendationRoutes from "./routes/recommendation"
+import cors from "cors";
+import session from "express-session";
+import env from "./utils/validateEnv";
+import MongoDBStore from "connect-mongo";
+import requireAuth from "./middlewares/auth";
 
 const app = express();
+app.use(cors({ credentials: true, origin: "http://localhost:5175" }));
 
 app.use(express.json());
 
+app.use(session({
+    secret: env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60,
+    },
+    rolling: true,
+    store: MongoDBStore.create({
+        mongoUrl: env.MONGO_URL
+    }),
+}));
+
 app.use("/api/users", userRoutes);
 app.use("/api/hotels", hotelRoutes);
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/bookings",requireAuth, bookingRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 app.use(morgan("dev"));
 
