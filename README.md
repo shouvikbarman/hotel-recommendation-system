@@ -8,9 +8,9 @@ Check out the **live application** -> https://peaceful-sorbet-51443c.netlify.app
 
 # Technologies Used
 
-**Authentication-** Express Session
-**UI Library-** Material UI
-**Bundler-** Vite
+- **Authentication-** Express Session
+- **UI Library-** Material UI
+- **Bundler-** Vite
 
 # Installation
 
@@ -21,10 +21,11 @@ Clone the repository, change directory, and use NPM or Yarn to install the depen
 # Usage
 
 **Run Server**
-cd server
-copy .env.dev contents to .env
-npm install or yarn install
-npm/yarn start
+
+    cd server
+    copy .env.dev contents to .env
+    npm install or yarn install
+    npm/yarn start
 
 **Run UI**
 
