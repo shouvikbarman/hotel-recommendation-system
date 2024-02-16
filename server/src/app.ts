@@ -13,7 +13,7 @@ import MongoDBStore from "connect-mongo";
 import requireAuth from "./middlewares/auth";
 
 const app = express();
-app.use(cors({ credentials: true, origin: "http://localhost:5175" }));
+app.use(cors());
 
 app.use(express.json());
 
