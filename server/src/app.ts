@@ -13,7 +13,7 @@ import MongoDBStore from "connect-mongo";
 import requireAuth from "./middlewares/auth";
 
 const app = express();
-app.use(cors());
+app.use(cors({ credentials: true, origin: "https://peaceful-sorbet-51443c.netlify.app" }));
 
 app.use(express.json());
 
