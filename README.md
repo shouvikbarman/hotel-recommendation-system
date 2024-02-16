@@ -8,7 +8,9 @@ Check out the **live application** -> https://peaceful-sorbet-51443c.netlify.app
 
 # Technologies Used
 
--**Authentication-** Express Session -**UI Library-** Material UI -**Bundler-** Vite
+**Authentication-** Express Session
+**UI Library-** Material UI
+**Bundler-** Vite
 
 # Installation
 
