@@ -32,5 +32,3 @@ npm/yarn start
     copy .env.dev contents to .env
     npm install or yarn install
     npm/yarn run dev
-
-change **REFERRER** in server/.env.dev to the URL app is running on if different
